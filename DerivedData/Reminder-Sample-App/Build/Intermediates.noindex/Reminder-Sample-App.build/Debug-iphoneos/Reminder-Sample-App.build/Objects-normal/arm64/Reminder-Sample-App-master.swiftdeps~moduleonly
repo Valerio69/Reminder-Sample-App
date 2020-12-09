@@ -1,0 +1,7 @@
+version: "Apple Swift version 5.3.1 (swiftlang-1200.0.41 clang-1200.0.32.8)"
+options: "443d7e872c1f14cb5960545b1abb8860"
+build_time: [1607522588, 636428000]
+inputs:
+  "/Users/Valerio/Project/Reminder-Sample-App/Reminder-Sample-App/ViewController.swift": [1607522583, 724796753]
+  "/Users/Valerio/Project/Reminder-Sample-App/Reminder-Sample-App/AppDelegate.swift": [1607522583, 716862564]
+  "/Users/Valerio/Project/Reminder-Sample-App/Reminder-Sample-App/SceneDelegate.swift": [1607522583, 721442916]

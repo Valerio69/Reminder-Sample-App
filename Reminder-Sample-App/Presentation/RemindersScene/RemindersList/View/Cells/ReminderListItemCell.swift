@@ -72,7 +72,7 @@ class ReminderListItemCell: UITableViewCell {
             
             if let date = viewModel.reminder.date {
                 if date.isInPast {
-                    rootView.backgroundColor = UIColor(rgbHex: 0xb8f5bd)
+                    rootView.backgroundColor = UIColor(rgbHex: 0xffe494)
                 }
             }
         }

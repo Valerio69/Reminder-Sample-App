@@ -64,6 +64,12 @@ final class DefaultRemindersListViewModel: RemindersListViewModel {
          actions: RemindersListViewModelActions? = nil) {
         self.storage = storage
         self.actions = actions
+        
+        // Not so clean, but this will do for now.
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(reminderNotificationreceived),
+                                               name: NSNotification.Name(rawValue: Constants.ReminderNotificationReceived),
+                                               object: nil)
     }
 
     private func refreshReminders() {
@@ -76,6 +82,11 @@ final class DefaultRemindersListViewModel: RemindersListViewModel {
                 break
             }
         }
+    }
+    
+    @objc private func reminderNotificationreceived() {
+        print("Notification received")
+        refreshReminders()
     }
 }
 

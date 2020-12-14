@@ -53,12 +53,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        // EZAlertController.alert("you have new meeting ")
-        
         completionHandler( [.alert, .badge, .sound])
+
+        let nc = NotificationCenter.default
+        nc.post(name: Notification.Name(Constants.ReminderNotificationReceived), object: notification.request.identifier)
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        let nc = NotificationCenter.default
+        nc.post(name: Notification.Name(Constants.ReminderNotificationReceived), object: response.actionIdentifier)
+        
         completionHandler()
     }
 }

@@ -112,11 +112,18 @@ class RemindersListViewController: UIViewController {
             }
             alertController.addAction(deleteOldRemindersAction)
         }
-        
-        
 
         let cancel = UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil)
         alertController.addAction(cancel)
+        
+        
+        // iOS Bug: https://stackoverflow.com/a/58666480/1232289
+        for subView in alertController.view.subviews {
+            for constraint in subView.constraints where constraint.debugDescription.contains("width == - 16") {
+                subView.removeConstraint(constraint)
+            }
+        }
+        
         self.present(alertController, animated: true, completion: nil)
     }
     
@@ -160,6 +167,14 @@ extension RemindersListViewController: UITableViewDelegate {
             alertController.addAction(deleteReminderAction)
             let cancel = UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil)
             alertController.addAction(cancel)
+            
+            // iOS Bug: https://stackoverflow.com/a/58666480/1232289
+            for subView in alertController.view.subviews {
+                for constraint in subView.constraints where constraint.debugDescription.contains("width == - 16") {
+                    subView.removeConstraint(constraint)
+                }
+            }
+            
             self.present(alertController, animated: true, completion: nil)
         }
     }

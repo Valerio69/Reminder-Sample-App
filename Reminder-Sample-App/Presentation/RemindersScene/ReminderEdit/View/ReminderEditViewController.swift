@@ -275,6 +275,14 @@ class ReminderEditViewController: UIViewController, Alertable {
         alertController.addAction(cameraAction)
         alertController.addAction(libraryAction)
         alertController.addAction(cancel)
+        
+        // iOS Bug: https://stackoverflow.com/a/58666480/1232289
+        for subView in alertController.view.subviews {
+            for constraint in subView.constraints where constraint.debugDescription.contains("width == - 16") {
+                subView.removeConstraint(constraint)
+            }
+        }
+        
         present(alertController, animated: true, completion: nil)
     }
     

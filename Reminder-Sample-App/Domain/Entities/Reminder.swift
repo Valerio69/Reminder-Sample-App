@@ -14,3 +14,13 @@ struct Reminder {
     var imageData: Data?
     var date: Date?
 }
+
+extension Reminder: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(identifier)
+    }
+    
+    static func == (lhs: Reminder, rhs: Reminder) -> Bool {
+        return lhs.identifier == rhs.identifier
+    }
+}

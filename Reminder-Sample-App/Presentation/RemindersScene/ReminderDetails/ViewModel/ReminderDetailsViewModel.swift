@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import NotificationCenter
 
 struct ReminderDetailsViewModelActions {
     /// Note: if you would need to edit movie inside Details screen and update this Movies List screen with updated movie then you would need this closure:
@@ -73,6 +74,8 @@ extension DefaultReminderDetailsViewModel {
     }
     
     func didSelectDelete() {
+        UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [reminder.value.identifier])
+        UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [reminder.value.identifier]) 
         storage.deleteReminder(reminder: reminder.value) { [weak self] in
             switch $0 {
             case .success():

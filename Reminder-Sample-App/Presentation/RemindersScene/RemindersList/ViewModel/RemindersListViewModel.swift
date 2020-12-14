@@ -6,7 +6,7 @@
 //
 
 import Foundation
-import Combine
+import NotificationCenter
 
 struct RemindersListViewModelActions {
     /// Note: if you would need to edit movie inside Details screen and update this Movies List screen with updated movie then you would need this closure:
@@ -124,9 +124,13 @@ extension DefaultRemindersListViewModel {
     
     func deleteAllReminders() {
         storage.deleteAllReminders { [weak self] in
+            guard let strongSelf = self else { return }
             switch $0 {
             case .success():
-                self?.items.value = []
+                let ids = strongSelf.items.value.map { $0.reminder.identifier }
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ids)
+                strongSelf.items.value = []
             case .failure(_):
                 print("Failed to delte all reminders")
             }
@@ -135,9 +139,16 @@ extension DefaultRemindersListViewModel {
     
     func deleteOldReminders() {
         storage.deleteOldReminders { [weak self] in
+            guard let strongSelf = self else { return }
             switch $0 {
-            case .success(let reminders):
-                let remindersViewModels = reminders.map(RemindersListItemViewModel.init)
+            case .success(let newReminders):
+                let oldSetId = Set(strongSelf.items.value.map { $0.reminder.identifier })
+                let newSetId = Set(newReminders.map { $0.identifier })
+                let expiredId = Array(oldSetId.symmetricDifference(newSetId))
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: expiredId)
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: expiredId)
+                
+                let remindersViewModels = newReminders.map(RemindersListItemViewModel.init)
                 self?.items.value = remindersViewModels
             case .failure(_):
                 print("Failed to delte all reminders")

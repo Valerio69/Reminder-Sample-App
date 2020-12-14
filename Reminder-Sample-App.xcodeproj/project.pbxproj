@@ -178,7 +178,6 @@
 			children = (
 				B98389CE2586191000427A70 /* Mocks */,
 				B98389C7258617BB00427A70 /* Presentation */,
-				B983899D25860EB700427A70 /* Domain */,
 				B97D4A402581109A00CE43CD /* Info.plist */,
 			);
 			path = "Reminder-Sample-AppTests";
@@ -437,21 +436,6 @@
 				B98389712583B34500427A70 /* Alertable.swift */,
 			);
 			path = Protocols;
-			sourceTree = "<group>";
-		};
-		B983899D25860EB700427A70 /* Domain */ = {
-			isa = PBXGroup;
-			children = (
-				B983899E25860EC700427A70 /* Use */,
-			);
-			path = Domain;
-			sourceTree = "<group>";
-		};
-		B983899E25860EC700427A70 /* Use */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Use;
 			sourceTree = "<group>";
 		};
 		B98389A02586134B00427A70 /* Interfaces */ = {

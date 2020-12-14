@@ -113,8 +113,12 @@ extension DefaultRemindersListViewModel {
     func deleteItem(at index: Int) {
         guard index < items.value.count else { return }
         storage.deleteReminder(reminder: items.value[index].reminder) { [weak self] (result) in
+            guard let strongSelf = self else { return }
             switch result {
             case .success():
+                let id = strongSelf.items.value[index].reminder.identifier
+                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
+                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [id])
                 self?.items.value.remove(at: index)
             case .failure(_):
                 print("Error")

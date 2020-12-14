@@ -117,6 +117,7 @@ extension DefaultRemindersListViewModel {
             switch result {
             case .success():
                 let id = strongSelf.items.value[index].reminder.identifier
+                print("Deleting notification with id \(id)")
                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: [id])
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: [id])
                 self?.items.value.remove(at: index)
@@ -131,9 +132,7 @@ extension DefaultRemindersListViewModel {
             guard let strongSelf = self else { return }
             switch $0 {
             case .success():
-                let ids = strongSelf.items.value.map { $0.reminder.identifier }
-                UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ids)
-                UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: ids)
+                UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
                 strongSelf.items.value = []
             case .failure(_):
                 print("Failed to delte all reminders")
@@ -149,6 +148,7 @@ extension DefaultRemindersListViewModel {
                 let oldSetId = Set(strongSelf.items.value.map { $0.reminder.identifier })
                 let newSetId = Set(newReminders.map { $0.identifier })
                 let expiredId = Array(oldSetId.symmetricDifference(newSetId))
+                // not needed, but just to be sure...
                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: expiredId)
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: expiredId)
                 

@@ -134,6 +134,7 @@ class DefaultRemidnerEditViewModel: ReminderEditViewModel {
         center.requestAuthorization(options: [.alert, .badge, .sound]) { (granted, error) in
             if granted {
                 // remove previous notification
+                print("Adding notification with id \(reminder.identifier)")
                 center.removePendingNotificationRequests(withIdentifiers: [reminder.identifier])
                 center.removeDeliveredNotifications(withIdentifiers: [reminder.identifier])
                 
@@ -148,7 +149,7 @@ class DefaultRemidnerEditViewModel: ReminderEditViewModel {
                 content.userInfo = ["data": "test"]
                 content.sound = UNNotificationSound.default
                 
-                let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+                let request = UNNotificationRequest(identifier: reminder.identifier, content: content, trigger: trigger)
                 center.add(request)
             } else {
                 

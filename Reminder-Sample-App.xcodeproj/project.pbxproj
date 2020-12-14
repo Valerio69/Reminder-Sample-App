@@ -45,6 +45,7 @@
 		B98389722583B34500427A70 /* Alertable.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98389712583B34500427A70 /* Alertable.swift */; };
 		B983899925852DDA00427A70 /* UIColor+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B983899825852DDA00427A70 /* UIColor+Extensions.swift */; };
 		B98389CA2586180900427A70 /* RemindersListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B98389C92586180900427A70 /* RemindersListViewModelTests.swift */; };
+		B983F553258747B400D8A2A3 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = B983F552258747B400D8A2A3 /* Constants.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,6 +109,7 @@
 		B983899425852AF100427A70 /* Reminder-Sample-App.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = "Reminder-Sample-App.entitlements"; sourceTree = "<group>"; };
 		B983899825852DDA00427A70 /* UIColor+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Extensions.swift"; sourceTree = "<group>"; };
 		B98389C92586180900427A70 /* RemindersListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = RemindersListViewModelTests.swift; path = "Reminder-Sample-AppTests/Presentation/RemindersListViewModelTests.swift"; sourceTree = SOURCE_ROOT; };
+		B983F552258747B400D8A2A3 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -355,6 +357,7 @@
 				B98389702583B33C00427A70 /* Protocols */,
 				B983896F2583B32F00427A70 /* Extensions */,
 				B98389652583A9FE00427A70 /* Observable.swift */,
+				B983F552258747B400D8A2A3 /* Constants.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -639,6 +642,7 @@
 				B97D4B0A25814CCD00CE43CD /* RemindersListViewController.swift in Sources */,
 				B97D4B6225819A8500CE43CD /* UIFont+Extensions.swift in Sources */,
 				B97D4AEE2581381D00CE43CD /* RealmContainer.swift in Sources */,
+				B983F553258747B400D8A2A3 /* Constants.swift in Sources */,
 				B97D4B412581596900CE43CD /* ReminderDetailsViewController.swift in Sources */,
 				B97D4A832581179700CE43CD /* AppAppearance.swift in Sources */,
 				B97D4A282581109700CE43CD /* AppDelegate.swift in Sources */,

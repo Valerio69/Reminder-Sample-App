@@ -68,9 +68,6 @@ class ReminderListItemCell: UITableViewCell {
             if let imageData = viewModel.imageData {
                 reminderImageView.image = UIImage(data: imageData)
                 reminderImageView.contentMode = .scaleAspectFill
-            } else {
-                reminderImageView.image = UIImage(systemName: "photo")
-                reminderImageView.contentMode = .center
             }
             
             if let date = viewModel.reminder.date {
@@ -89,6 +86,16 @@ class ReminderListItemCell: UITableViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        rootView.backgroundColor = .white
+        reminderImageView.image = UIImage(systemName: "photo")
+        reminderImageView.contentMode = .center
+        reminderContentLabel.text = ""
+        reminderDateLabel.text = ""
+        reminderTitleLabel.text = ""
     }
     
     private func setup() {

@@ -10,6 +10,9 @@ import UIKit
 class ReminderEditViewController: UIViewController, Alertable {
     
     private var viewModel: ReminderEditViewModel!
+    private var keyboardHeight: CGFloat = 0
+    
+    
     private lazy var imagePicker: UIImagePickerController = {
         let imagePicker = UIImagePickerController()
         imagePicker.delegate = self
@@ -84,6 +87,7 @@ class ReminderEditViewController: UIViewController, Alertable {
         let datePicker = UIDatePicker()
         datePicker.datePickerMode = .dateAndTime
         datePicker.addTarget(self, action: #selector(dateChanged(datePicker:)), for: .valueChanged)
+        datePicker.addTarget(self, action: #selector(datePickerClosed), for: .editingDidEnd)
         
         let calendar = Calendar(identifier: .gregorian)
         
@@ -137,7 +141,6 @@ class ReminderEditViewController: UIViewController, Alertable {
 
         
         let notificationCenter = NotificationCenter.default
-        notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillHideNotification, object: nil)
         notificationCenter.addObserver(self, selector: #selector(adjustForKeyboard), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
     
@@ -164,33 +167,63 @@ class ReminderEditViewController: UIViewController, Alertable {
     }
 
     private func layout(keyboardHeight: CGFloat = 0) {
-        rootView.pin.all(view.pin.safeArea)
         
-        // make sure the label height is always updated even if the phone use big font
-        // and zoomed view.
+        // Auto Layout vs Pinlayout
         
-        reminderImageButton.pin
-            .size(CGSize(width: 44, height: 44))
-            .top(16)
-            .start(16)
+        // MARK: - Auto Layout
+        rootView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            rootView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            rootView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
+            rootView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            rootView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+        ])
         
-        reminderTitleTextField.pin
-            .height(44)
-            .after(of: reminderImageButton, aligned: .center)
-            .marginStart(12)
-            .end(16)
+        reminderImageButton.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            reminderImageButton.widthAnchor.constraint(equalToConstant: 44),
+            reminderImageButton.heightAnchor.constraint(equalToConstant: 44),
+            reminderImageButton.topAnchor.constraint(equalTo: rootView.topAnchor, constant: 16),
+            reminderImageButton.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 16),
+        ])
+        
+        reminderTitleTextField.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            reminderTitleTextField.heightAnchor.constraint(equalToConstant: 44),
+            reminderTitleTextField.leadingAnchor.constraint(equalTo: reminderImageButton.trailingAnchor, constant: 16),
+            reminderTitleTextField.centerYAnchor.constraint(equalTo: reminderImageButton.centerYAnchor),
+            reminderTitleTextField.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -16),
+        ])
+        
+        reminderDatePicker.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            reminderDatePicker.topAnchor.constraint(equalTo: reminderImageButton.bottomAnchor, constant: 14),
+            reminderDatePicker.leadingAnchor.constraint(equalTo: reminderImageButton.leadingAnchor),
+            reminderDatePicker.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: 16),
+            reminderDatePicker.heightAnchor.constraint(equalToConstant: 44)
+        ])
+        
+        reminderContenTextView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            reminderContenTextView.topAnchor.constraint(equalTo: reminderDatePicker.bottomAnchor, constant: 14),
+            reminderContenTextView.leadingAnchor.constraint(equalTo: rootView.leadingAnchor, constant: 16),
+            reminderContenTextView.trailingAnchor.constraint(equalTo: rootView.trailingAnchor, constant: -16),
+            reminderContenTextView.bottomAnchor.constraint(equalTo: rootView.bottomAnchor, constant: -(keyboardHeight+16))
+        ])
                 
-        reminderDatePicker.pin
-            .below(of: reminderImageButton, aligned: .start)
-            .end(16)
-            .marginTop(14)
-
-        reminderContenTextView.pin
-            .below(of: reminderDatePicker)
-            .marginTop(14)
-            .bottom(keyboardHeight + 16)
-            .horizontally(16)
+        // MARK: - PinLayout
+        // Uncomment the following few lines of code and comment out all the previous Code
+        // They produce he same results but this has the following advantages:
+        // 1. Less code to write
+        // 2. Less error prone
+        // 3. Up to 10x more performance. Particularly within a UITableView with lot of UITableViewCell (Or UICollactionView)
         
+//        rootView.pin.all(view.pin.safeArea)
+//        reminderImageButton.pin.size(CGSize(width: 44, height: 44)).top(16).start(16)
+//        reminderTitleTextField.pin.height(44).after(of: reminderImageButton, aligned: .center).marginStart(12).end(16)
+//        reminderDatePicker.pin.below(of: reminderImageButton, aligned: .start).end(16).marginTop(14)
+//        reminderContenTextView.pin.below(of: reminderDatePicker).marginTop(14).bottom(keyboardHeight + 16).horizontally(16)
+
         reminderImageButton.layer.cornerRadius = reminderImageButton.frame.size.height / 2
         
     }
@@ -201,13 +234,17 @@ class ReminderEditViewController: UIViewController, Alertable {
     }
     
     @objc private func adjustForKeyboard(notification: Notification) {
-        guard let keyboardValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
-        
-        if notification.name == UIResponder.keyboardWillHideNotification {
-            layout()
-        } else {
-            layout(keyboardHeight: keyboardValue.cgRectValue.height)
+        guard let endFrame = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else {
+            return
         }
+        let newHeight = UIScreen.main.bounds.height - endFrame.origin.y - view.safeAreaInsets.bottom
+        guard keyboardHeight != newHeight else { return }
+        keyboardHeight = newHeight < 0 ? 0 : newHeight
+        
+        reminderContenTextView.contentInset.bottom = keyboardHeight
+        
+        // Using PinLayout is very easy to resize the reminderContenTextView instead of manupilating its content inset.
+//        layout(keyboardHeight: keyboardHeight)
     }
     
     @objc private func dismissKeyboard() {
@@ -220,6 +257,9 @@ class ReminderEditViewController: UIViewController, Alertable {
     }
     
     @objc private func selectImage() {
+        reminderTitleTextField.resignFirstResponder()
+        reminderContenTextView.resignFirstResponder()
+        
         let alertController = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alertController.popoverPresentationController?.permittedArrowDirections = .down
         
@@ -252,6 +292,11 @@ class ReminderEditViewController: UIViewController, Alertable {
     
     @objc private func dateChanged(datePicker: UIDatePicker) {
         viewModel.didSelectReminderDate(date: datePicker.date)
+    }
+    
+    @objc private func datePickerClosed(datePicker: UIDatePicker) {
+        print("Date picker closed")
+        layout()
     }
     
     @objc private func saveReminder() {

@@ -14,9 +14,18 @@ class ReminderDetailsViewController: UIViewController {
         v.addSubview(reminderTitleTextField)
         v.addSubview(reminderDateLabel)
         v.addSubview(reminderContentTextView)
+        v.addSubview(shareButton)
         v.addSubview(reminderImageView)
         v.addSubview(closeImageButton)
         return v
+    }()
+    
+    private lazy var shareButton: UIButton = {
+        let b = UIButton()
+        b.setImage(UIImage(systemName: "square.and.arrow.up"), for: .normal)
+        b.addTarget(self, action: #selector(shareReminder), for: .touchUpInside)
+        b.tintColor = .white
+        return b
     }()
     
     private lazy var reminderImageView: UIImageView = {
@@ -179,6 +188,11 @@ class ReminderDetailsViewController: UIViewController {
             .marginStart(12)
             .end(16)
         
+        shareButton.pin
+            .vCenter(to: reminderTitleTextField.edge.vCenter)
+            .end(16)
+            .size(CGSize(width: 44, height: 44))
+        
         reminderDateLabel.pin
             .below(of: reminderImageView, aligned: .start)
             .marginTop(14)
@@ -241,6 +255,21 @@ class ReminderDetailsViewController: UIViewController {
         let cancel = UIAlertAction(title: "Cancel".localized(), style: .cancel, handler: nil)
         alertController.addAction(cancel)
         self.present(alertController, animated: true, completion: nil)
+    }
+    
+    @objc private func shareReminder() {
+        guard let title = viewModel.reminder.value.title,
+              let dateString = reminderDateLabel.text else { return }
+        
+        var sharedContent = "\("Reminder".localized())!\n\("When".localized()): \(dateString)\n\("Title".localized()): \(title)"
+        
+        if let content = viewModel.reminder.value.content {
+            sharedContent = "\(sharedContent)\n\("Content".localized()): \(content)"
+        }
+        
+        let items = [sharedContent]
+        let ac = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        present(ac, animated: true)
     }
     
 }

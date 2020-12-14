@@ -27,7 +27,7 @@ protocol ReminderDetailsViewModelOutput {
 protocol ReminderDetailsViewModel: ReminderDetailsViewModelInput, ReminderDetailsViewModelOutput {}
 
 final class DefaultReminderDetailsViewModel: ReminderDetailsViewModel {
-    private let storage: RemindersStorage
+    private let storage: RemindersRepository
     private let actions: ReminderDetailsViewModelActions?
     
     var reminder: Observable<Reminder>
@@ -42,7 +42,7 @@ final class DefaultReminderDetailsViewModel: ReminderDetailsViewModel {
 //    }
 //    var imageData: Data? { return reminder.imageData }
     
-    init(reminder: Reminder, storage: RemindersStorage, actions: ReminderDetailsViewModelActions?) {
+    init(reminder: Reminder, storage: RemindersRepository, actions: ReminderDetailsViewModelActions?) {
         self.reminder = Observable(reminder)
         self.storage = storage
         self.actions = actions

@@ -6,7 +6,7 @@ import UIKit
 final class RemindersSceneDIContainer {
     
     // MARK: - Persistent Storage
-    lazy var remindersStorage: RemindersStorage = RealmRemindersStorage()
+    lazy var remindersStorage: RemindersRepository = RealmRemindersStorage()
     
     init() { }
     
@@ -31,7 +31,7 @@ final class RemindersSceneDIContainer {
     }
     
     func makeReminderDetailsViewModel(reminder: Reminder,
-                                      storage: RemindersStorage,
+                                      storage: RemindersRepository,
                                       actions: ReminderDetailsViewModelActions?) -> ReminderDetailsViewModel {
         return DefaultReminderDetailsViewModel(reminder: reminder,
                                                storage: storage,
@@ -47,7 +47,7 @@ final class RemindersSceneDIContainer {
     }
     
     func makeReminderEditViewModel(reminder: Reminder?,
-                                   storage: RemindersStorage,
+                                   storage: RemindersRepository,
                                    actions: ReminderEditViewModelActions?) -> ReminderEditViewModel {
         return reminder == nil ?
             DefaultRemidnerEditViewModel(storage: storage, actions: actions) :

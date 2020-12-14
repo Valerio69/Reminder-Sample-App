@@ -36,7 +36,7 @@ protocol ReminderEditViewModel: ReminderEditViewModelInput, ReminderEditViewMode
 
 class DefaultRemidnerEditViewModel: ReminderEditViewModel {
     
-    private let storage: RemindersStorage
+    private let storage: RemindersRepository
     private let actions: ReminderEditViewModelActions?
     private let identifier: String
     
@@ -49,7 +49,7 @@ class DefaultRemidnerEditViewModel: ReminderEditViewModel {
     var saveSuccess: Observable<Bool> = Observable(false)
     var errorTitle: String = "Error".localized()
     
-    init(storage: RemindersStorage,
+    init(storage: RemindersRepository,
          actions: ReminderEditViewModelActions?,
          reminder: Reminder = Reminder(identifier: UUID().uuidString,
                                        title: nil,

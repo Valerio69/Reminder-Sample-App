@@ -8,9 +8,9 @@
 import Foundation
 import RealmSwift
 
-final class RealmRemindersStorage: RemindersStorage {
+final class RealmRemindersStorage: RemindersRepository {
 
-    func fetchAllReminders(completion block: @escaping (Result<[Reminder], ReminderStorageError>) -> Void) {
+    func fetchAllReminders(completion block: @escaping (Result<[Reminder], RemindersRepositoryError>) -> Void) {
         // Query and update from any thread
         DispatchQueue(label: "fetch-all-reminders-thread").async {
             autoreleasepool {
@@ -28,7 +28,7 @@ final class RealmRemindersStorage: RemindersStorage {
         }
     }
     
-    func deleteReminder(reminder: Reminder, completion block: @escaping (Result<Void, ReminderStorageError>) -> Void) {
+    func deleteReminder(reminder: Reminder, completion block: @escaping (Result<Void, RemindersRepositoryError>) -> Void) {
         DispatchQueue(label: "delete-reminder-thread").async {
             autoreleasepool {
                 do {
@@ -36,7 +36,7 @@ final class RealmRemindersStorage: RemindersStorage {
                     guard let obj = realm.objects(ReminderObject.self).first(where: {
                         $0.identifier == reminder.identifier
                     }) else {
-                        block(.failure(.deleteFailed(error: "ASd")))
+                        block(.failure(.deleteFailed(error: "This reminder does not exist")))
                         return
                     }
                     
@@ -52,7 +52,7 @@ final class RealmRemindersStorage: RemindersStorage {
         }
     }
     
-    func deleteAllReminders(completion block: @escaping (Result<Void, ReminderStorageError>) -> Void) {
+    func deleteAllReminders(completion block: @escaping (Result<Void, RemindersRepositoryError>) -> Void) {
         DispatchQueue(label: "delete-reminder-thread").async {
             autoreleasepool {
                 do {
@@ -73,7 +73,7 @@ final class RealmRemindersStorage: RemindersStorage {
         }
     }
     
-    func deleteOldReminders(completion block: @escaping (Result<Void, ReminderStorageError>) -> Void) {
+    func deleteOldReminders(completion block: @escaping (Result<[Reminder], RemindersRepositoryError>) -> Void) {
         DispatchQueue(label: "delete-reminder-thread").async {
             autoreleasepool {
                 do {
@@ -85,7 +85,13 @@ final class RealmRemindersStorage: RemindersStorage {
                             realm.delete(objs)
                         }
                     }
-                    block(.success(()))
+                    
+                    let newReminders = realm.objects(ReminderObject.self)
+                        .sorted(byKeyPath: "date", ascending: true).map { reminderObject in
+                            return Reminder(managedObject: reminderObject)
+                        }
+                    
+                    block(.success(Array(newReminders)))
                 } catch {
                     print(error)
                     block(.failure(.deleteFailed(error: error.localizedDescription)))
@@ -94,7 +100,7 @@ final class RealmRemindersStorage: RemindersStorage {
         }
     }
     
-    func addReminder(reminder: Reminder, completion block: @escaping (Result<Void, ReminderStorageError>) -> Void) {
+    func addReminder(reminder: Reminder, completion block: @escaping (Result<Void, RemindersRepositoryError>) -> Void) {
         DispatchQueue(label: "add-reminder-thread").async {
             autoreleasepool {
                 do {
@@ -111,7 +117,7 @@ final class RealmRemindersStorage: RemindersStorage {
         }
     }
     
-    func updateReminder(reminder: Reminder, completion block: @escaping (Result<Void, ReminderStorageError>) -> Void) {
+    func updateReminder(reminder: Reminder, completion block: @escaping (Result<Void, RemindersRepositoryError>) -> Void) {
         DispatchQueue(label: "update-reminder-thread").async {
             autoreleasepool {
                 do {

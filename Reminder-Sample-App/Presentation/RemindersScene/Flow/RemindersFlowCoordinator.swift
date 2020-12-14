@@ -29,7 +29,7 @@ final class RemindersFlowCoordinator {
     
     func start() {
         // Note: here we keep strong reference with actions, this way this flow do not need to be strong referenced
-
+        
         let actions = RemindersListViewModelActions(showReminderDetails: showReminderDetails,
                                                     editReminder: showReminderEdit)
         let vc = dependencies.makeRemindersListViewController(actions: actions)
@@ -40,7 +40,7 @@ final class RemindersFlowCoordinator {
     
     private func showReminderDetails(reminder: Reminder) {
         let actions = ReminderDetailsViewModelActions(showRemindersEdit: showReminderEdit,
-                                                       popViewController: popViewController)
+                                                      popViewController: popViewController)
         let vc = dependencies.makeReminderDetailsViewController(reminder: reminder,
                                                                 actions: actions)
         
@@ -61,3 +61,4 @@ final class RemindersFlowCoordinator {
     }
     
 }
+

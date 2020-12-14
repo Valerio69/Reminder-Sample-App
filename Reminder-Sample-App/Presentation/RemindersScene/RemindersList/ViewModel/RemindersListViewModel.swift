@@ -19,12 +19,11 @@ protocol RemindersListViewModelInput {
     func viewDidLoad()
     func viewWillAppear()
     func didSearch(query: String)
-    func didCancelSearch()
     func didSelectItem(at index: Int)
     func didTapOnCreateNewReminder()
-    func didDeleteItem(at index: Int)
-    func didSelectDeleteAllReminders()
-    func didSelectDeleteOldReminders()
+    func deleteItem(at index: Int)
+    func deleteAllReminders()
+    func deleteOldReminders()
 }
 
 protocol RemindersListViewModelOutput {
@@ -41,7 +40,7 @@ protocol RemindersListViewModel: RemindersListViewModelInput, RemindersListViewM
 
 final class DefaultRemindersListViewModel: RemindersListViewModel {
     
-    private let storage: RemindersStorage
+    private let storage: RemindersRepository
     private let actions: RemindersListViewModelActions?
     
     var items: Observable<[RemindersListItemViewModel]> = Observable([])
@@ -52,13 +51,16 @@ final class DefaultRemindersListViewModel: RemindersListViewModel {
     var screenTitle: String = "Reminders".localized()
     
     var hasExpiredItems: Bool {
-        items.value.filter { $0.reminder.date != nil && $0.reminder.date!.isInPast }.count > 0
+        hasExpiredItemsCount > 0
+    }
+    var hasExpiredItemsCount: Int {
+        items.value.filter { $0.reminder.date != nil && $0.reminder.date!.isInPast }.count
     }
     
     
     // MARK: - Init
     
-    init(storage: RemindersStorage,
+    init(storage: RemindersRepository,
          actions: RemindersListViewModelActions? = nil) {
         self.storage = storage
         self.actions = actions
@@ -88,14 +90,6 @@ extension DefaultRemindersListViewModel {
         refreshReminders()
     }
     
-    func didSearch(query: String) {
-        
-    }
-    
-    func didCancelSearch() {
-        
-    }
-    
     func didSelectItem(at index: Int) {
         guard index < items.value.count else { return }
         actions?.showReminderDetails(items.value[index].reminder)
@@ -105,7 +99,7 @@ extension DefaultRemindersListViewModel {
         actions?.editReminder(nil)
     }
     
-    func didDeleteItem(at index: Int) {
+    func deleteItem(at index: Int) {
         guard index < items.value.count else { return }
         storage.deleteReminder(reminder: items.value[index].reminder) { [weak self] (result) in
             switch result {
@@ -117,7 +111,7 @@ extension DefaultRemindersListViewModel {
         }
     }
     
-    func didSelectDeleteAllReminders() {
+    func deleteAllReminders() {
         storage.deleteAllReminders { [weak self] in
             switch $0 {
             case .success():
@@ -128,14 +122,30 @@ extension DefaultRemindersListViewModel {
         }
     }
     
-    func didSelectDeleteOldReminders() {
+    func deleteOldReminders() {
         storage.deleteOldReminders { [weak self] in
             switch $0 {
-            case .success():
-                self?.refreshReminders()
+            case .success(let reminders):
+                let remindersViewModels = reminders.map(RemindersListItemViewModel.init)
+                self?.items.value = remindersViewModels
             case .failure(_):
                 print("Failed to delte all reminders")
             }
+        }
+    }
+    
+    func didSearch(query: String) {
+        if query.isEmpty {
+            refreshReminders()
+        }
+        items.value =  items.value.filter {
+            if let title = $0.title, title.contains(query) {
+                return true
+            }
+            if let content = $0.content, content.contains(query) {
+                return true
+            }
+            return false
         }
     }
     

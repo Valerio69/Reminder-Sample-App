@@ -163,15 +163,16 @@ extension DefaultRemindersListViewModel {
     func didSearch(query: String) {
         if query.isEmpty {
             refreshReminders()
-        }
-        items.value =  items.value.filter {
-            if let title = $0.title, title.contains(query) {
-                return true
+        } else {
+            items.value =  items.value.filter {
+                if let title = $0.title, title.contains(query) {
+                    return true
+                }
+                if let content = $0.content, content.contains(query) {
+                    return true
+                }
+                return false
             }
-            if let content = $0.content, content.contains(query) {
-                return true
-            }
-            return false
         }
     }
     

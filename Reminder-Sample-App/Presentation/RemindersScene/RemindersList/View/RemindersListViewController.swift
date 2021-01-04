@@ -60,39 +60,50 @@ class RemindersListViewController: UIViewController {
         title = viewModel.screenTitle
         
         searchController.searchBar.barStyle = .black
-        searchController.searchResultsUpdater = self as UISearchResultsUpdating
+        searchController.searchResultsUpdater = self
         searchController.searchBar.placeholder = "Search".localized()
-        navigationItem.searchController = searchController
+        searchController.obscuresBackgroundDuringPresentation = false
+        definesPresentationContext = true
+        
         navigationItem.hidesSearchBarWhenScrolling = true
         view.addSubview(remindersTable)
     }
     
     private func bind() {
-        viewModel.items.observe(on: self) { [weak self] _ in self?.refreshList() }
+        viewModel.items.observe(on: self) { [weak self] _ in
+            self?.refreshNavigationBar()
+            self?.refreshList()
+        }
     }
     
     private func refreshList() {
-        let createNewReminderButtonBar = UIBarButtonItem(image: UIImage(systemName: "plus"),
-                                                         style: .plain,
-                                                         target: self,
-                                                         action: #selector(addReminder))
-        
-        if !viewModel.isEmpty {
-            let deleteRemindersButtonBar = UIBarButtonItem(image: UIImage(systemName: "trash"),
-                                                           style: .plain,
-                                                           target: self,
-                                                           action: #selector(deleteReminders))
-            navigationItem.rightBarButtonItems = [createNewReminderButtonBar, deleteRemindersButtonBar]
-        } else {
-            navigationItem.rightBarButtonItems?.removeAll()
-            navigationItem.rightBarButtonItem = createNewReminderButtonBar
-        }
-        
         UIView.transition(with: remindersTable,
                           duration: 0.25,
                           options: .transitionCrossDissolve) {
             self.remindersTable.reloadData()
         }
+    }
+    
+    private func refreshNavigationBar() {
+        // clear the buttons and remove the searchBar by default
+        navigationItem.rightBarButtonItems?.removeAll()
+        navigationItem.searchController = nil
+        
+        // Create the new buttons bases on the reminders list
+        var navBarButtons: [UIBarButtonItem] = [UIBarButtonItem(image: UIImage(systemName: "plus"),
+                                                                style: .plain,
+                                                                target: self,
+                                                                action: #selector(addReminder))]
+        if !viewModel.isEmpty {
+            navBarButtons.append(UIBarButtonItem(image: UIImage(systemName: "trash"),
+                                                 style: .plain,
+                                                 target: self,
+                                                 action: #selector(deleteReminders)))
+            
+            navigationItem.searchController = searchController
+        }
+        
+        navigationItem.rightBarButtonItems = navBarButtons
     }
     
     @objc private func addReminder() {
@@ -160,8 +171,11 @@ extension RemindersListViewController: UITableViewDelegate {
                    commit editingStyle: UITableViewCell.EditingStyle,
                    forRowAt indexPath: IndexPath) {
         if editingStyle == .delete {
-            let alertController = UIAlertController(title: "Do you want to delete this Reminder?".localized(), message: nil, preferredStyle: .actionSheet)
-            let deleteReminderAction = UIAlertAction(title: "Delete".localized(), style: .destructive) { [weak self] _ in
+            let alertController = UIAlertController(title: "Do you want to delete this Reminder?".localized(),
+                                                    message: nil,
+                                                    preferredStyle: .actionSheet)
+            let deleteReminderAction = UIAlertAction(title: "Delete".localized(),
+                                                     style: .destructive) { [weak self] _ in
                 self?.viewModel.deleteItem(at: indexPath.row)
             }
             alertController.addAction(deleteReminderAction)

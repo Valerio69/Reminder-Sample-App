@@ -67,7 +67,7 @@ final class DefaultRemindersListViewModel: RemindersListViewModel {
         
         // Not so clean, but this will do for now.
         NotificationCenter.default.addObserver(self,
-                                               selector: #selector(reminderNotificationreceived),
+                                               selector: #selector(reminderNotificationReceived),
                                                name: NSNotification.Name(rawValue: Constants.ReminderNotificationReceived),
                                                object: nil)
     }
@@ -84,10 +84,11 @@ final class DefaultRemindersListViewModel: RemindersListViewModel {
         }
     }
     
-    @objc private func reminderNotificationreceived() {
+    @objc private func reminderNotificationReceived() {
         print("Notification received")
         refreshReminders()
     }
+    
 }
 
 // MARK: - INPUT. View event methods
@@ -148,7 +149,8 @@ extension DefaultRemindersListViewModel {
                 let oldSetId = Set(strongSelf.items.value.map { $0.reminder.identifier })
                 let newSetId = Set(newReminders.map { $0.identifier })
                 let expiredId = Array(oldSetId.symmetricDifference(newSetId))
-                // not needed, but just to be sure...
+                // not needed because they should already be expired.
+                // but just to be sure...
                 UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: expiredId)
                 UNUserNotificationCenter.current().removeDeliveredNotifications(withIdentifiers: expiredId)
                 

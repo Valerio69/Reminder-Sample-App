@@ -32,8 +32,6 @@ class RemindersListViewController: UIViewController {
         view.viewModel = viewModel
         return view
     }
-
-    // MARK: - LifeCycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -158,6 +156,43 @@ extension RemindersListViewController: UITableViewDataSource {
         return cell
     }
     
+    func tableView(_ tableView: UITableView,
+                   contextMenuConfigurationForRowAt indexPath: IndexPath,
+                   point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        let dependencies = RemindersSceneDIContainer()
+        let vc = dependencies.makeReminderDetailsViewController(
+            reminder: viewModel.items.value[indexPath.row].reminder,
+            actions: nil)
+        
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: {
+                return vc
+            },
+            actionProvider: { [self] _ in
+                let removeReminder = makeRemoveReminderAction(index: indexPath.row)
+                let children = [removeReminder]
+                return UIMenu(title: "", children: children)
+            })
+    }
+    
+    func makeRemoveReminderAction(index: Int) -> UIAction {
+        // 1
+        let removeRatingAttributes = UIMenuElement.Attributes.destructive
+        
+        // 3
+        let deleteImage = UIImage(systemName: "trash")
+        
+        // 4
+        return UIAction(
+            title: "Delete Reminder".localized(),
+            image: deleteImage,
+            identifier: nil,
+            attributes: removeRatingAttributes) { [self] _ in
+            viewModel.deleteItem(at: index)
+        }
+    }
 }
 
 extension RemindersListViewController: UITableViewDelegate {
@@ -194,7 +229,6 @@ extension RemindersListViewController: UITableViewDelegate {
     }
 }
 
-
 extension RemindersListViewController: UISearchResultsUpdating {
     func updateSearchResults(for searchController: UISearchController) {
         remindersTable.pin.all(view.pin.safeArea)
@@ -205,3 +239,5 @@ extension RemindersListViewController: UISearchResultsUpdating {
         viewModel.didSearch(query: query)
     }
 }
+
+
